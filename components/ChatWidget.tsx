@@ -1,7 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Message } from '../types';
-import { getAssistantResponse } from '../services/gemini';
+import { getAssistantResponse } from '../services/ai';
 
 const ChatWidget: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
@@ -11,7 +11,16 @@ const ChatWidget: React.FC = () => {
     }
   ]);
   const [input, setInput] = useState('');
+
   const [isTyping, setIsTyping] = useState(false);
+  const [currentModel, setCurrentModel] = useState<string>(() => {
+    const provider = import.meta.env.VITE_AI_PROVIDER;
+    if (provider === 'gemini') return "Gemini-2.0-Flash";
+    if (provider === 'zhipu') return "GLM-4.7-FlashX";
+    return "GPT-4o-mini";
+  });
+  const [clickCount, setClickCount] = useState(0);
+  const [showDebugInfo, setShowDebugInfo] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,13 +37,23 @@ const ChatWidget: React.FC = () => {
     setInput('');
     setIsTyping(true);
 
-    const response = await getAssistantResponse(messages, text);
+    const { content, model } = await getAssistantResponse(messages, text);
 
     setIsTyping(false);
-    setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+    setCurrentModel(model);
+    setMessages(prev => [...prev, { role: 'assistant', content }]);
   };
 
-  const quickReplies = ['About me', 'Tech Stack', 'Contact Info', 'Current Role'];
+  const quickReplies = ['About me', 'Tech Stack', 'Selected Projects', 'Contact Info'];
+
+  const handleIconClick = () => {
+    const newCount = clickCount + 1;
+    setClickCount(newCount);
+    if (newCount >= 8) {
+      setShowDebugInfo(prev => !prev);
+      setClickCount(0);
+    }
+  };
 
   return (
     <div className="relative">
@@ -43,7 +62,10 @@ const ChatWidget: React.FC = () => {
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/50 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="relative">
+            <div
+              className="relative select-none transition-transform"
+              onClick={handleIconClick}
+            >
               <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
                 <span className="material-symbols-outlined text-xl">smart_toy</span>
               </div>
@@ -54,9 +76,11 @@ const ChatWidget: React.FC = () => {
               <p className="text-[10px] text-gray-500 mt-1">Online | Replies instantly</p>
             </div>
           </div>
-          <button className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-            <span className="material-symbols-outlined">more_vert</span>
-          </button>
+          {showDebugInfo && currentModel && (
+            <div className="text-[10px] font-bold text-gray-400 dark:text-gray-500 tracking-wider animate-in fade-in duration-300">
+              {currentModel}
+            </div>
+          )}
         </div>
 
         {/* Chat Area */}
@@ -103,7 +127,7 @@ const ChatWidget: React.FC = () => {
               <button
                 key={reply}
                 onClick={() => handleSend(reply)}
-                className="flex-shrink-0 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-[11px] font-medium hover:bg-primary/10 transition-colors whitespace-nowrap"
+                className="flex-shrink-0 px-3 py-1.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-[11px] font-medium hover:bg-primary/10 transition-colors whitespace-nowrap focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-gray-900"
               >
                 {reply}
               </button>
@@ -118,16 +142,20 @@ const ChatWidget: React.FC = () => {
             className="relative"
           >
             <input
+              name="chat-input"
+              autoComplete="off"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className="w-full pl-4 pr-12 py-3 bg-gray-50 dark:bg-gray-800 border-none rounded-xl text-sm focus:ring-2 focus:ring-primary/50 text-gray-900 dark:text-white placeholder-gray-400 transition-all"
-              placeholder="Ask anything about Xu..."
+              placeholder="Ask anything about Xu…"
               type="text"
+              aria-label="Chat message"
             />
             <button
               type="submit"
               disabled={!input.trim() || isTyping}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-primary hover:bg-primary-dark disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white rounded-lg transition-all shadow-sm flex items-center justify-center"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 bg-primary hover:bg-primary-dark disabled:bg-gray-300 dark:disabled:bg-gray-700 text-white rounded-lg transition-all shadow-sm flex items-center justify-center focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary focus-visible:outline-none dark:focus-visible:ring-offset-gray-900"
+              aria-label="Send message"
             >
               <span className="material-symbols-outlined text-sm leading-none">send</span>
             </button>

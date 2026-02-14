@@ -33,9 +33,18 @@
                         'glow': '0 0 15px rgba(16, 185, 129, 0.3)',
                     },
                     animation: {
-                        'gradient-text': 'gradient-xy 8s ease infinite',
+                        'gradient-text': 'gradient-xy 4s ease infinite',
+                        'text-shimmer': 'shimmer 3s linear infinite',
                     },
                     keyframes: {
+                        'shimmer': {
+                            '0%': {
+                                'background-position': '100% 0'
+                            },
+                            '100%': {
+                                'background-position': '-100% 0'
+                            }
+                        },
                         'gradient-xy': {
                             '0%, 100%': {
                                 'background-size': '200% 200%',

@@ -100,14 +100,14 @@ Reference these guidelines when:
 - `advanced-event-handler-refs` - Store event handlers in refs
 - `advanced-use-latest` - useLatest for stable callback refs
 
-## How to Use
+### How to Use
 
 Read individual rule files for detailed explanations and code examples:
 
 ```
-rules/async-parallel.md
-rules/bundle-barrel-imports.md
-rules/_sections.md
+resources/rules/async-parallel.md
+resources/rules/bundle-barrel-imports.md
+resources/rules/_sections.md
 ```
 
 Each rule file contains:
@@ -118,4 +118,4 @@ Each rule file contains:
 
 ## Full Compiled Document
 
-For the complete guide with all rules expanded: `AGENTS.md`
+For the complete guide with all rules expanded: `resources/AGENTS.md`

@@ -11,20 +11,20 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDark }) => {
     <header className="sticky top-0 z-50 bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex-shrink-0 flex items-center gap-2 group cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+          <a href="#" className="flex-shrink-0 flex items-center gap-2 group cursor-pointer focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none rounded-xl dark:focus-visible:ring-offset-gray-900" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}>
             <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center text-white font-black text-xl shadow-glow group-hover:scale-110 transition-transform">XR</div>
             <span className="font-bold text-xl tracking-tight text-gray-900 dark:text-white">Xu Ran</span>
-          </div>
-          
+          </a>
+
           <nav className="hidden md:flex items-center space-x-8">
-            <a className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors" href="#home">Home</a>
-            <a className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors" href="#skills">Skills</a>
-            <a className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors" href="#projects">Projects</a>
-            <a className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors" href="#footer">Contact</a>
-            
-            <button 
+            <a className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg px-2 py-1 dark:focus-visible:ring-offset-gray-900" href="#home">Home</a>
+            <a className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg px-2 py-1 dark:focus-visible:ring-offset-gray-900" href="#skills">Skills</a>
+            <a className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg px-2 py-1 dark:focus-visible:ring-offset-gray-900" href="#projects">Projects</a>
+            <a className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg px-2 py-1 dark:focus-visible:ring-offset-gray-900" href="#footer">Contact</a>
+
+            <button
               onClick={toggleDark}
-              className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-all shadow-sm"
+              className="w-10 h-10 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary transition-all shadow-sm focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-gray-900"
               aria-label="Toggle dark mode"
             >
               <span className="material-symbols-outlined text-[20px]">
@@ -34,7 +34,7 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDark }) => {
           </nav>
 
           <div className="md:hidden flex items-center gap-4">
-            <button 
+            <button
               onClick={toggleDark}
               className="p-2 text-gray-600 dark:text-gray-300"
             >

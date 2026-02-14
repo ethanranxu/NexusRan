@@ -5,6 +5,30 @@ import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { SKILL_CATEGORIES } from '../constants';
 
+// ────────────────── Seeded Random & Padding ──────────────────
+
+function seededRandom(seed: string) {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = Math.imul(31, h) + seed.charCodeAt(i) | 0;
+  return function () {
+    h = Math.imul(h ^ h >>> 16, 0x85ebca6b);
+    h = Math.imul(h ^ h >>> 13, 0xc2b2ae35);
+    return ((h ^= h >>> 16) >>> 0) / 4294967296;
+  };
+}
+
+const PADDED_SKILL_CATEGORIES = SKILL_CATEGORIES.map(cat => {
+  if (cat.items.length >= 8) return cat;
+  const items = [...cat.items];
+  const rand = seededRandom(cat.name);
+  const originalItems = [...cat.items];
+  while (items.length < 8 && originalItems.length > 0) {
+    const idx = Math.floor(rand() * originalItems.length);
+    items.push(originalItems[idx]);
+  }
+  return { ...cat, items };
+});
+
 // ────────────────── Types ──────────────────
 
 type LogoConfig = { slug: string; abbr: string };
@@ -204,7 +228,7 @@ const Cubie = React.forwardRef<THREE.Group, CubieProps>(
         if (!exposed[fk]) return createBaseMaterial();
 
         const catIdx = FACE_TO_CATEGORY[fk];
-        const category = SKILL_CATEGORIES[catIdx];
+        const category = PADDED_SKILL_CATEGORIES[catIdx];
 
         const isCenter =
           (fk === 'right' && y === 0 && z === 0) ||
@@ -275,52 +299,7 @@ const RubiksCube = ({ logosReady }: { logosReady: boolean }) => {
     activeCubies: [] as THREE.Object3D[],
   });
 
-  // Scramble on mount
-  useEffect(() => {
-    // Small delay to ensure children are mounted/ready
-    const timer = setTimeout(() => {
-      if (!groupRef.current) return;
 
-      const axes = [new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 1)];
-
-      // Perform 20 random moves instantly
-      for (let i = 0; i < 20; i++) {
-        const axisIdx = Math.floor(Math.random() * 3);
-        const axis = axes[axisIdx];
-        const sliceIdx = Math.floor(Math.random() * 3) - 1; // -1, 0, 1
-
-        groupRef.current.children.forEach(child => {
-          if (child === pivotRef.current) return;
-
-          const p = child.position;
-          const eps = 0.1;
-          let inSlice = false;
-
-          if (axisIdx === 0 && Math.abs(p.x - sliceIdx) < eps) inSlice = true;
-          else if (axisIdx === 1 && Math.abs(p.y - sliceIdx) < eps) inSlice = true;
-          else if (axisIdx === 2 && Math.abs(p.z - sliceIdx) < eps) inSlice = true;
-
-          if (inSlice) {
-            // Apply rotation around world axis
-            child.position.applyAxisAngle(axis, Math.PI / 2);
-            child.rotateOnWorldAxis(axis, Math.PI / 2);
-
-            // Round to keep alignment
-            child.position.set(Math.round(child.position.x), Math.round(child.position.y), Math.round(child.position.z));
-
-            const e = new THREE.Euler().setFromQuaternion(child.quaternion);
-            child.rotation.set(
-              Math.round(e.x / (Math.PI / 2)) * (Math.PI / 2),
-              Math.round(e.y / (Math.PI / 2)) * (Math.PI / 2),
-              Math.round(e.z / (Math.PI / 2)) * (Math.PI / 2),
-            );
-            child.updateMatrix();
-          }
-        });
-      }
-    }, 100);
-    return () => clearTimeout(timer);
-  }, []);
 
   useFrame((_s, delta) => {
     if (groupRef.current && !isRotating) {

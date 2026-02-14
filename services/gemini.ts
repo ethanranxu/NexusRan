@@ -1,46 +1,47 @@
-
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Message } from "../types";
 
-const SYSTEM_INSTRUCTION = `
-You are Xu Ran's virtual assistant. 
-Xu Ran is a Senior Software Engineer with over 20 years of experience.
-Background: 
-- Locations: Worked in New Zealand, USA, and China.
-- Skills: C#, C++, Python, JavaScript, TypeScript, React, Node.js, AWS, Azure, System Architecture.
-- Achievements: Led a fintech unicorn's tech team in Shanghai (50k+ TPS), migrated major bank systems in NZ to AWS.
-- Languages: Fluent in English and Mandarin.
-- Tone: Professional, helpful, concise, and friendly (Kia ora!).
+import { SYSTEM_INSTRUCTION } from "../data/prompts";
 
-If asked about projects, mention the KiwiBank migration or the AgriTech IoT platform.
-If asked about contact, mention they can use the links at the bottom of the page.
-Stay in character. Never mention you are an AI model unless explicitly asked about your technical nature.
-`;
 
-export async function getAssistantResponse(history: Message[], userInput: string) {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
-  
-  const contents = history.map(m => ({
-    role: m.role === 'assistant' ? 'model' as const : 'user' as const,
-    parts: [{ text: m.content }]
-  }));
+export async function getAssistantResponse(history: Message[], userInput: string): Promise<{ content: string; model: string }> {
+  const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
 
-  // Add the current user input if not already in history
-  contents.push({ role: 'user', parts: [{ text: userInput }] });
+  // Use gemini-2.0-flash which is the current standard model
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  // Prepend system instructions to the history for models/versions that don't support systemInstruction parameter
+  const chatHistory = [
+    {
+      role: "user",
+      parts: [{ text: "Instructions: " + SYSTEM_INSTRUCTION }],
+    },
+    {
+      role: "model",
+      parts: [{ text: "Understood. I am Xu Ran's virtual assistant. How can I help you today?" }],
+    },
+    ...history.map(m => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }],
+    }))
+  ];
+
+  const chat = model.startChat({
+    history: chatHistory,
+  });
 
   try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: contents,
-      config: {
-        systemInstruction: SYSTEM_INSTRUCTION,
-        temperature: 0.7,
-      },
-    });
-
-    return response.text || "Sorry, I'm having trouble connecting to Xu's brain right now.";
+    const result = await chat.sendMessage(userInput);
+    const response = await result.response;
+    return {
+      content: response.text() || "Sorry, I'm having trouble connecting to Xu's brain right now.",
+      model: "Gemini-2.0-Flash"
+    };
   } catch (error) {
     console.error("Gemini Error:", error);
-    return "I'm currently offline, but feel free to explore Xu's portfolio!";
+    return {
+      content: "I'm currently offline, but feel free to explore Xu's portfolio!",
+      model: "Gemini-2.0-Flash"
+    };
   }
 }
