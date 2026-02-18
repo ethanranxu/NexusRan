@@ -3,7 +3,11 @@ import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import ChatWidget from './components/ChatWidget';
 import TechCube from './components/TechCube';
-import { PROJECTS, SKILL_CATEGORIES } from './constants';
+import { SKILL_CATEGORIES } from './constants';
+import { Project } from './types';
+import ImageGalleryModal from './components/ImageGalleryModal';
+import { uploadProjectsToFirestore } from './services/migration';
+import { useProjects } from './hooks/useProjects';
 
 const App: React.FC = () => {
   const [activeRegion, setActiveRegion] = useState<string>('New Zealand');
@@ -24,10 +28,47 @@ const App: React.FC = () => {
 
   const toggleDark = () => setIsDark(!isDark);
 
-  const filteredProjects = PROJECTS.filter(p => p.region === activeRegion);
+
+  const { projects, loading, error } = useProjects();
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  const openGallery = (project: Project) => {
+    setSelectedProject(project);
+  };
+
+  const closeGallery = () => {
+    setSelectedProject(null);
+  };
+
+
+
+  const filteredProjects = projects.filter(p => p.region === activeRegion);
+
+  useEffect(() => {
+    // Re-trigger reveal animation for new content
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    // Small delay to ensure DOM is updated
+    setTimeout(() => {
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+    }, 100);
+
+    return () => observer.disconnect();
+  }, [activeRegion, filteredProjects]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background-light dark:bg-background-dark transition-colors duration-300 selection:bg-primary/30">
+      <ImageGalleryModal
+        isOpen={!!selectedProject}
+        onClose={closeGallery}
+        images={selectedProject?.galleryImages || (selectedProject ? [selectedProject.image] : [])}
+      />
       <Header isDark={isDark} toggleDark={toggleDark} />
 
       <main className="flex-grow">
@@ -138,79 +179,113 @@ const App: React.FC = () => {
 
             <div className="flex justify-center mb-16 reveal">
               <div className="bg-white dark:bg-card-dark p-1.5 rounded-[20px] shadow-sm border border-gray-200 dark:border-gray-800 inline-flex transition-colors">
-                {['New Zealand', 'USA', 'China'].map(region => (
-                  <button
-                    key={region}
-                    onClick={() => setActiveRegion(region)}
-                    className={`px-10 py-3 rounded-2xl text-sm font-bold transition-all ${activeRegion === region
-                      ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105'
-                      : 'text-gray-500 dark:text-gray-400 hover:text-primary'
-                      } focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-gray-900`}
-                  >
-                    {region}
-                  </button>
-                ))}
+                {['New Zealand', 'USA', 'China'].map(region => {
+                  const count = projects.filter(p => p.region === region).length;
+                  return (
+                    <button
+                      key={region}
+                      onClick={() => setActiveRegion(region)}
+                      className={`px-8 py-3 rounded-2xl text-sm font-bold transition-all flex items-center justify-center gap-1 ${activeRegion === region
+                        ? 'bg-primary text-white shadow-lg shadow-primary/20 scale-105'
+                        : 'text-gray-500 dark:text-gray-400 hover:text-primary'
+                        } focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none dark:focus-visible:ring-offset-gray-900`}
+                    >
+                      {region}
+                      <span className={`text-[10px] font-bold ml-0.5 opacity-80 ${activeRegion === region
+                        ? 'text-white'
+                        : 'text-gray-400'
+                        }`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14">
-              {filteredProjects.length > 0 ? filteredProjects.map((project, idx) => (
-                <div
-                  key={project.id}
-                  className="group bg-white dark:bg-card-dark rounded-[32px] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-soft hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 reveal"
-                  style={{ transitionDelay: `${idx * 0.15}s` }}
-                >
-                  <div className="h-64 overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-end p-8">
-                      <span className="text-white font-bold text-sm bg-primary/90 px-4 py-2 rounded-full backdrop-blur-sm">View Details</span>
+            {loading ? (
+              <div className="flex justify-center items-center py-32">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+              </div>
+            ) : error ? (
+              <div className="text-center text-red-500 py-20 bg-red-50 dark:bg-red-900/10 rounded-xl border border-red-200 dark:border-red-900/20">
+                <p>Failed to load projects. Please try refreshing.</p>
+                <p className="text-xs mt-2 opacity-70">{error}</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-14">
+                {filteredProjects.length > 0 ? filteredProjects.map((project, idx) => (
+                  <div
+                    key={project.id}
+                    className="group bg-white dark:bg-card-dark rounded-[32px] overflow-hidden border border-gray-100 dark:border-gray-800 shadow-soft hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 reveal"
+                    style={{ transitionDelay: `${idx * 0.15}s` }}
+                  >
+                    <div className="h-64 overflow-hidden relative cursor-pointer" onClick={() => openGallery(project)}> {/* Added onClick handler */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-end justify-end p-8">
+                        <span className="text-white font-bold text-sm bg-primary/90 px-4 py-2 rounded-full backdrop-blur-sm">View More</span>
+                      </div>
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        width={600}
+                        height={400}
+                        loading="lazy"
+                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000"
+                      />
                     </div>
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      width={600}
-                      height={400}
-                      loading="lazy"
-                      className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000"
-                    />
-                  </div>
-                  <div className="p-10">
-                    <div className="mb-8">
-                      <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-xs font-bold bg-primary/10 text-primary mb-4 border border-primary/20">
-                        {project.role}
-                      </span>
-                      <h3 className="text-3xl font-black text-gray-900 dark:text-white mb-4 group-hover:text-primary transition-colors">
-                        {project.title}
-                      </h3>
-                      <p className="text-gray-600 dark:text-gray-400 text-base leading-relaxed">
-                        {project.description}
-                      </p>
-                    </div>
+                    <div className="p-10">
+                      <div className="mb-8">
+                        <span className="inline-flex items-center px-4 py-1.5 rounded-xl text-xs font-bold bg-primary/10 text-primary mb-4 border border-primary/20">
+                          {project.role}
+                        </span>
+                        <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-4 transition-colors min-h-[4rem] flex items-start">
+                          {project.link && project.link !== '#' ? (
+                            <a
+                              href={project.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:text-primary transition-colors inline-block"
+                            >
+                              {project.title}
+                              <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-50 dark:bg-white/5 group-hover/link:bg-primary/10 transition-all align-middle ml-1">
+                                <span className="material-symbols-outlined text-base">open_in_new</span>
+                              </span>
+                            </a>
+                          ) : (
+                            <span className="group-hover:text-primary transition-colors">{project.title}</span>
+                          )}
+                        </h3>
+                        <p className="text-gray-600 dark:text-gray-400 text-base leading-relaxed text-justify">
+                          {project.description}
+                        </p>
+                      </div>
 
-                    <div className="bg-gray-50 dark:bg-white/5 rounded-2xl p-6 mb-10 border border-gray-100 dark:border-white/5">
-                      <h4 className="text-[11px] uppercase tracking-[0.2em] text-gray-400 font-black mb-3">Key Outcome</h4>
-                      <div className="flex items-center text-lg font-bold text-gray-900 dark:text-gray-100">
-                        <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center mr-4">
-                          <span className="material-symbols-outlined text-xl">{project.resultIcon}</span>
+                      <div className="bg-gray-50 dark:bg-white/5 rounded-2xl p-6 mb-10 border border-gray-100 dark:border-white/5">
+                        <h4 className="text-[11px] uppercase tracking-[0.2em] text-gray-400 font-black mb-3">Key Outcome</h4>
+                        <div className="flex items-center text-lg font-bold text-gray-900 dark:text-gray-100">
+                          <div className="w-10 h-10 rounded-full bg-primary/20 text-primary flex items-center justify-center mr-4">
+                            <span className="material-symbols-outlined text-xl">{project.resultIcon}</span>
+                          </div>
+                          {project.keyResult}
                         </div>
-                        {project.keyResult}
+                      </div>
+
+                      <div className="flex flex-wrap gap-2.5">
+                        {project.tags.map(tag => (
+                          <span key={tag} className="px-4 py-1.5 bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-gray-400 text-[11px] font-bold rounded-xl mono-text border border-gray-100 dark:border-white/5 transition-all group-hover:border-primary/20">
+                            {tag}
+                          </span>
+                        ))}
                       </div>
                     </div>
-
-                    <div className="flex flex-wrap gap-2.5">
-                      {project.tags.map(tag => (
-                        <span key={tag} className="px-4 py-1.5 bg-gray-50 dark:bg-white/5 text-gray-500 dark:text-gray-400 text-[11px] font-bold rounded-xl mono-text border border-gray-100 dark:border-white/5 transition-all group-hover:border-primary/20">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
                   </div>
-                </div>
-              )) : (
-                <div className="col-span-full py-32 text-center text-gray-400 italic">
-                  Archived projects in this region are currently being updated.
-                </div>
-              )}
-            </div>
+                )) : (
+                  <div className="col-span-full py-32 text-center text-gray-400 italic">
+                    Archived projects in this region are currently being updated.
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </section>
       </main>
@@ -250,15 +325,23 @@ const App: React.FC = () => {
 
             <div className="w-full mt-24 pt-10 border-t border-gray-200 dark:border-gray-800 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400 font-medium reveal" style={{ transitionDelay: '0.3s' }}>
               <p>© {new Date().getFullYear()} Xu Ran. Auckland, New Zealand.</p>
-              <div className="flex gap-10 mt-6 md:mt-0">
-                <a href="#" className="hover:text-primary transition-colors">Case Studies</a>
-                <a href="#" className="hover:text-primary transition-colors">Resume (PDF)</a>
-              </div>
+
+              <button
+                onClick={() => {
+                  console.log('Starting upload...');
+                  uploadProjectsToFirestore()
+                    .then(res => console.log('Upload result:', res))
+                    .catch(err => console.error('Upload failed:', err));
+                }}
+                className="px-4 py-2 bg-gray-200 dark:bg-gray-800 rounded text-xs opacity-50 hover:opacity-100 transition-opacity"
+              >
+                SyncDB
+              </button>
             </div>
           </div>
         </div>
       </footer>
-    </div>
+    </div >
   );
 };
 

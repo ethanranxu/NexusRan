@@ -8,7 +8,10 @@ export interface Project {
   resultIcon: string;
   tags: string[];
   image: string;
+  galleryImages?: string[];
+  link?: string;
   region: 'New Zealand' | 'USA' | 'China';
+  order: number;
 }
 
 export interface Message {

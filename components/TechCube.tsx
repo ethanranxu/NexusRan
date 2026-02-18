@@ -67,7 +67,7 @@ const SKILL_LOGO: Record<string, LogoConfig> = {
   'Vue.js': { slug: 'vuedotjs', abbr: 'Vue' },
   'HTML5': { slug: 'html5', abbr: 'H5' },
   'CSS3': { slug: 'css3', abbr: 'CSS' },
-  'TailwindCSS': { slug: 'tailwindcss', abbr: 'TW' },
+  'TailwindCSS': { slug: 'tailwind css', abbr: 'TW' },
   'Bootstrap': { slug: 'bootstrap', abbr: 'BS' },
   // Backend
   'Node.js': { slug: 'nodedotjs', abbr: 'Node' },

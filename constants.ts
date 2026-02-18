@@ -12,7 +12,7 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
     name: 'Frontend',
     icon: 'web',
     color: 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400',
-    items: ['React', 'Vue.js', 'HTML5', 'CSS3', 'TailwindCSS', 'Bootstrap']
+    items: ['React', 'Vue.js', 'HTML5', 'CSS3', 'Tailwind CSS', 'Bootstrap']
   },
   {
     name: 'Backend',
@@ -40,28 +40,52 @@ export const SKILL_CATEGORIES: SkillCategory[] = [
   }
 ];
 
+// Dynamically load all project images from public/images
+const projectImages = import.meta.glob('/public/images/**/*.jpg', { eager: true, as: 'url' });
+
+// Helper to get images for a specific project ID
+const getProjectImages = (projectId: string) => {
+  const images = Object.keys(projectImages)
+    .filter(path => path.includes(`/public/images/${projectId}/`))
+    .sort((a, b) => {
+      // Sort by file name number (e.g. 1.jpg, 2.jpg)
+      const aNum = parseInt(a.split('/').pop()?.split('.')[0] || '0');
+      const bNum = parseInt(b.split('/').pop()?.split('.')[0] || '0');
+      return aNum - bNum;
+    })
+    .map(path => path.replace('/public', '')); // Convert /public/images/... to /images/...
+
+  return images.length > 0 ? images : undefined;
+};
+
 export const PROJECTS: Project[] = [
   {
-    id: 'p1',
-    title: 'KiwiBank Core Migration',
-    role: 'Principal Architect',
-    description: 'Led the migration of legacy monolith systems to a microservices architecture on AWS for a major New Zealand financial institution.',
-    keyResult: 'Reduced latency by 40%',
-    resultIcon: 'trending_down',
-    tags: ['AWS', 'Java', 'Kafka'],
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDndmCDAOzHm3ERBp1efaLQs7l6o2qhBbL45aPocFvXJkX5sk6mjeYr9hBzF69jLvDSR_buaM92bOKlGXCZ8rQQbQZenQTlGX9g8uHYJxqskwaqpiBhDgExZOYknxZiOtTfhGwRA5N5v_9gW9v1VRLNWx7klZI2FqeQiwgn6wnm9w8KFiisqbiKiKy2-UZqhk23_kyWrt7UJQ-e_-KjEErc6Ybf3EGDHHoAXeBwkyLBt3gt8XuBLhps5gfMkrBUg4d6qQOTCdaVcC4',
-    region: 'New Zealand'
+    id: 'p-nz-01',
+    title: 'EFC of East Coast Bays Official Website',
+    role: 'Full-Stack Developer',
+    description: 'Solely designed, developed, and deployed the official website for EFC of East Coast Bays, covering UI/UX design, requirements analysis, front-end and back-end development, testing, and launch.',
+    keyResult: '150% increase in traffic',
+    resultIcon: 'trending_up',
+    tags: ['Next.js', 'React', 'Firestore', 'Tailwind CSS', 'Vercel'],
+    image: '/images/p-nz-01/1.jpg',
+    galleryImages: getProjectImages('p-nz-01'),
+    link: 'https://www.efcecb.com/',
+    region: 'New Zealand',
+    order: 100
   },
   {
-    id: 'p2',
-    title: 'AgriTech IoT Platform',
-    role: 'Lead Developer',
-    description: 'Developed a real-time monitoring dashboard for dairy farms across the Waikato region using IoT sensors and edge computing.',
-    keyResult: '99.99% Uptime Achieved',
-    resultIcon: 'check_circle',
-    tags: ['React', 'Node.js', 'MQTT'],
-    image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDKwiAdRDbjVFZ7MlmdRdf34JcK_nxXMvKEf-zZB1P_GENmoxMzs-BXZL4NVBbZOSQPIUeJ0dux4CfpkOXmTugvnScOCkiP4gqsS2ToIG1Pv-nENiZD1cdl83PB7khRuMzqc-JRqBwP6y9OfVLroAzNf6ULYszOA1XR3bkvXaIDugQ-s2nF1lIjTLCQOav9uaSxd0w3PY_OkY0qVn8iLwyhZXAQM443krVaz6YzFg31yDzkWU9nFsPzyYjpdOarGtjXsHFr2e2hcB0',
-    region: 'New Zealand'
+    id: 'p-nz-02',
+    title: 'Nurses Thriving at Work Research Collaborative Website',
+    role: 'Full-Stack Maintenance Engineer',
+    description: 'Maintained and optimized a University of Auckland research project website by improving code efficiency, fixing two critical bugs, redeploying it, and uploading updated materials, ensuring smooth front-end and back-end performance.',
+    keyResult: 'Optimized performance',
+    resultIcon: 'speed',
+    tags: ['React', 'Vite', 'MUI', 'Sanity CMS', 'Tailwind CSS', 'AWS'],
+    image: '/images/p-nz-02/1.jpg',
+    galleryImages: getProjectImages('p-nz-02'),
+    link: 'https://www.nurses-thriving.com/',
+    region: 'New Zealand',
+    order: 90
   },
   {
     id: 'p3',
@@ -72,17 +96,22 @@ export const PROJECTS: Project[] = [
     resultIcon: 'bolt',
     tags: ['C++', 'Python', 'Redis'],
     image: 'https://picsum.photos/seed/trading/800/400',
-    region: 'China'
+    link: '#',
+    region: 'China',
+    order: 80
   },
   {
-    id: 'p4',
+    id: 'p-usa-01',
     title: 'Global E-commerce Scale',
     role: 'Senior Engineer',
     description: 'Rearchitected the checkout flow for a major US retailer, improving conversion rates by streamlining microservice calls.',
     keyResult: '15% Conversion Increase',
     resultIcon: 'analytics',
     tags: ['Go', 'Azure', 'React'],
-    image: 'https://picsum.photos/seed/retail/800/400',
-    region: 'USA'
+    image: '/images/p-usa-01/1.jpg',
+    galleryImages: getProjectImages('p-usa-01'),
+    link: '#',
+    region: 'USA',
+    order: 70
   }
 ];
