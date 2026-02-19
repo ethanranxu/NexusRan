@@ -56,45 +56,46 @@ const BASE_COLOR = '#222222';
 
 const SKILL_LOGO: Record<string, LogoConfig> = {
   // Programming
-  'C#': { slug: 'csharp', abbr: 'C#' },
-  'C++': { slug: 'cplusplus', abbr: 'C++' },
-  'Python': { slug: 'python', abbr: 'Py' },
-  'JavaScript': { slug: 'javascript', abbr: 'JS' },
+  'C#': { slug: '', abbr: 'C#' },
   'TypeScript': { slug: 'typescript', abbr: 'TS' },
+  'JavaScript': { slug: 'javascript', abbr: 'JS' },
   'SQL': { slug: 'postgresql', abbr: 'SQL' },
+  'Python': { slug: 'python', abbr: 'Py' },
+  'C++': { slug: 'cplusplus', abbr: 'C++' },
   // Frontend
   'React': { slug: 'react', abbr: 'Re' },
   'Vue.js': { slug: 'vuedotjs', abbr: 'Vue' },
+  'TailwindCSS': { slug: 'tailwindcss', abbr: 'TW' },
+  'CSS3': { slug: '', abbr: 'CSS' },
   'HTML5': { slug: 'html5', abbr: 'H5' },
-  'CSS3': { slug: 'css3', abbr: 'CSS' },
-  'TailwindCSS': { slug: 'tailwind css', abbr: 'TW' },
   'Bootstrap': { slug: 'bootstrap', abbr: 'BS' },
   // Backend
+  '.NET 8': { slug: 'dotnet', abbr: '.NET 8' },
+  'ASP.NET Core': { slug: 'dotnet', abbr: 'ASP.NET Core' },
   'Node.js': { slug: 'nodedotjs', abbr: 'Node' },
-  'ASP.NET Core': { slug: 'dotnet', abbr: '.NET' },
   'Django': { slug: 'django', abbr: 'Dj' },
-  'REST API': { slug: 'fastapi', abbr: 'API' },
-  'Microservices': { slug: 'kubernetes', abbr: 'μS' },
+  'REST API': { slug: '', abbr: 'API' },
+  'Microservices': { slug: '', abbr: 'μS' },
   // Database
-  'SQL Server': { slug: 'microsoftsqlserver', abbr: 'MS' },
-  'MySQL': { slug: 'mysql', abbr: 'My' },
+  'SQL Server': { slug: '', abbr: 'SQL' },
   'PostgreSQL': { slug: 'postgresql', abbr: 'PG' },
-  'Supabase': { slug: 'supabase', abbr: 'SB' },
+  'MySQL': { slug: 'mysql', abbr: 'My' },
   'MongoDB': { slug: 'mongodb', abbr: 'MDB' },
+  'Supabase': { slug: 'supabase', abbr: 'SB' },
   'Firestore': { slug: 'firebase', abbr: 'FB' },
   // DevOps
   'Docker': { slug: 'docker', abbr: 'Dk' },
-  'AWS': { slug: 'amazonaws', abbr: 'AWS' },
-  'Azure': { slug: 'microsoftazure', abbr: 'Az' },
+  'AWS': { slug: '', abbr: 'AWS' },
+  'Azure': { slug: '', abbr: 'Az' },
   'CI/CD': { slug: 'githubactions', abbr: 'CI' },
-  'Git': { slug: 'git', abbr: 'Git' },
+  'Unit/Integration Testing': { slug: '', abbr: 'UT/IT' },
   'Nginx': { slug: 'nginx', abbr: 'Nx' },
   // Architecture
-  'System Architecture': { slug: 'archlinux', abbr: 'SA' },
-  'Requirement Analysis': { slug: 'readthedocs', abbr: 'RA' },
-  'Scalability': { slug: 'scaleway', abbr: 'SC' },
+  'Agile / Scrum': { slug: '', abbr: 'Agile' },
+  'Code Review': { slug: '', abbr: 'CR' },
+  'Production Support': { slug: '', abbr: 'PS' },
+  'Scalability': { slug: '', abbr: 'SC' },
   'UI/UX': { slug: 'figma', abbr: 'UX' },
-  'Agile': { slug: 'jirasoftware', abbr: 'AG' },
 };
 
 // Center icon for each face category
@@ -130,7 +131,7 @@ function preloadAllLogos(): Promise<void> {
       img.crossOrigin = 'anonymous';
       img.onload = () => { logoImageCache.set(slug, img); resolve(); };
       img.onerror = () => { logoImageCache.set(slug, null); resolve(); };
-      img.src = `https://cdn.simpleicons.org/${slug}/white`;
+      img.src = `/icons/${slug}.svg`;
     })
   );
 
@@ -300,6 +301,36 @@ const RubiksCube = ({ logosReady }: { logosReady: boolean }) => {
   });
 
 
+  useEffect(() => {
+    if (!groupRef.current) return;
+    // Initial Scramble: Apply 20 random 90-degree moves instantly
+    for (let i = 0; i < 20; i++) {
+      const axisIdx = Math.floor(Math.random() * 3);
+      const axes = [new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 1)];
+      const axis = axes[axisIdx];
+      const sliceIdx = Math.floor(Math.random() * 3) - 1;
+      const angle = (Math.random() > 0.5 ? 1 : -1) * Math.PI / 2;
+      const q = new THREE.Quaternion().setFromAxisAngle(axis, angle);
+      const eps = 0.1;
+      groupRef.current.children.forEach(c => {
+        if (c === pivotRef.current) return;
+        const p = c.position;
+        const val = axisIdx === 0 ? p.x : axisIdx === 1 ? p.y : p.z;
+        if (Math.abs(val - sliceIdx) < eps) {
+          c.position.applyQuaternion(q);
+          c.quaternion.premultiply(q);
+          // Snap precisely to grid
+          c.position.set(Math.round(c.position.x), Math.round(c.position.y), Math.round(c.position.z));
+          const e = new THREE.Euler().setFromQuaternion(c.quaternion);
+          c.rotation.set(
+            Math.round(e.x / (Math.PI / 2)) * (Math.PI / 2),
+            Math.round(e.y / (Math.PI / 2)) * (Math.PI / 2),
+            Math.round(e.z / (Math.PI / 2)) * (Math.PI / 2),
+          );
+        }
+      });
+    }
+  }, []);
 
   useFrame((_s, delta) => {
     if (groupRef.current && !isRotating) {

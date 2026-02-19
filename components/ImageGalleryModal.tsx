@@ -84,6 +84,7 @@ const ImageGalleryModal: React.FC<ImageGalleryModalProps> = ({
 
                     {/* Close button */}
                     <button
+                        type="button"
                         onClick={onClose}
                         className="p-2 text-white/70 hover:text-white bg-black/50 hover:bg-black/70 rounded-full transition-colors backdrop-blur-sm"
                         aria-label="Close gallery"
@@ -121,6 +122,7 @@ const ImageGalleryModal: React.FC<ImageGalleryModalProps> = ({
                     {images.length > 1 && (
                         <>
                             <button
+                                type="button"
                                 onClick={handlePrev}
                                 className="absolute left-4 z-50 p-3 text-white/70 hover:text-white bg-black/50 hover:bg-black/70 rounded-full transition-colors hidden md:flex items-center justify-center transform hover:scale-105 active:scale-95 backdrop-blur-sm"
                                 aria-label="Previous image"
@@ -129,6 +131,7 @@ const ImageGalleryModal: React.FC<ImageGalleryModalProps> = ({
                             </button>
 
                             <button
+                                type="button"
                                 onClick={handleNext}
                                 className="absolute right-4 z-50 p-3 text-white/70 hover:text-white bg-black/50 hover:bg-black/70 rounded-full transition-colors hidden md:flex items-center justify-center transform hover:scale-105 active:scale-95 backdrop-blur-sm"
                                 aria-label="Next image"
@@ -139,8 +142,8 @@ const ImageGalleryModal: React.FC<ImageGalleryModalProps> = ({
                     )}
 
                     {/* Mobile Tap Navigation Zones */}
-                    <div className="absolute inset-y-0 left-0 w-1/4 h-full md:hidden z-10" onClick={handlePrev}></div>
-                    <div className="absolute inset-y-0 right-0 w-1/4 h-full md:hidden z-10" onClick={handleNext}></div>
+                    <button type="button" className="absolute inset-y-0 left-0 w-1/4 h-full md:hidden z-10 bg-transparent border-none p-0 outline-none" onClick={handlePrev} aria-label="Previous image"></button>
+                    <button type="button" className="absolute inset-y-0 right-0 w-1/4 h-full md:hidden z-10 bg-transparent border-none p-0 outline-none" onClick={handleNext} aria-label="Next image"></button>
                 </div>
             </div>
 

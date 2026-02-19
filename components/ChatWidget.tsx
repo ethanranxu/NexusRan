@@ -7,7 +7,7 @@ const ChatWidget: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: "Kia ora! I'm Xu's virtual assistant. I can tell you about his 20+ years of engineering experience, his favorite tech stack, or how he manages distributed teams. What would you like to know?"
+      content: "Hi! I'm Xu's virtual assistant. I can tell you about his full-stack engineering experience, his favorite tech stack, or how he builds high-performance, production-ready web and real-time systems. What would you like to know?"
     }
   ]);
   const [input, setInput] = useState('');
@@ -44,7 +44,7 @@ const ChatWidget: React.FC = () => {
     setMessages(prev => [...prev, { role: 'assistant', content }]);
   };
 
-  const quickReplies = ['About me', 'Tech Stack', 'Selected Projects', 'Contact Info'];
+  const quickReplies = ['About me', 'Tech Stack', 'Selected Projects', 'Local Projects', 'Contact Info'];
 
   const handleIconClick = () => {
     const newCount = clickCount + 1;
