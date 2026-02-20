@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 interface HeaderProps {
   isDark: boolean;
@@ -22,10 +23,10 @@ const Header: React.FC<HeaderProps> = ({ isDark, toggleDark }) => {
           </button>
 
           <nav className="hidden md:flex items-center space-x-8">
-            <a className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg px-2 py-1 dark:focus-visible:ring-offset-gray-900" href="#home">Home</a>
-            <a className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg px-2 py-1 dark:focus-visible:ring-offset-gray-900" href="#skills">Skills</a>
-            <a className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg px-2 py-1 dark:focus-visible:ring-offset-gray-900" href="#projects">Projects</a>
-            <a className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg px-2 py-1 dark:focus-visible:ring-offset-gray-900" href="#footer">Contact</a>
+            <Link className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg px-2 py-1 dark:focus-visible:ring-offset-gray-900" to="/#home">Home</Link>
+            <Link className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg px-2 py-1 dark:focus-visible:ring-offset-gray-900" to="/#skills">Skills</Link>
+            <Link className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg px-2 py-1 dark:focus-visible:ring-offset-gray-900" to="/#projects">Projects</Link>
+            <Link className="text-gray-600 dark:text-gray-300 hover:text-primary dark:hover:text-primary font-medium transition-colors focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:outline-none rounded-lg px-2 py-1 dark:focus-visible:ring-offset-gray-900" to="/#footer">Contact</Link>
 
             <button
               onClick={toggleDark}

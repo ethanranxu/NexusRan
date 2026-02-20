@@ -51,6 +51,31 @@ const Home: React.FC = () => {
         }
     }, [isDark]);
 
+    // Handle hash scrolling for cross-page navigation
+    useEffect(() => {
+        const handleHashScroll = () => {
+            const hash = window.location.hash;
+            if (hash) {
+                // Remove the '#' from the hash
+                const targetId = hash.substring(1);
+                const element = document.getElementById(targetId);
+                if (element) {
+                    // Slight delay to ensure content is rendered (especially with reveals)
+                    setTimeout(() => {
+                        element.scrollIntoView({ behavior: 'smooth' });
+                    }, 100);
+                }
+            }
+        };
+
+        // Run on mount and whenever the hash changes (or navigation occurs)
+        handleHashScroll();
+
+        // Also listen for hashchange events if the user clicks a link on the same page
+        window.addEventListener('hashchange', handleHashScroll);
+        return () => window.removeEventListener('hashchange', handleHashScroll);
+    }, [location.pathname]); // Also re-run if we just arrived on '/' from another path
+
     const toggleDark = () => setIsDark(!isDark);
 
 
