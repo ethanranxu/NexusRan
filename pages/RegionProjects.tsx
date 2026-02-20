@@ -97,31 +97,71 @@ const RegionProjects: React.FC = () => {
                         <>
                             {/* Category Grid for China */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-                                {categories.map((cat, idx) => (
-                                    <div key={idx} className="group relative bg-white dark:bg-[#1a2e22] rounded-xl p-8 flex flex-col gap-6 card-hover-effect border border-gray-100 dark:border-gray-800 shadow-sm transition-transform hover:-translate-y-1">
-                                        <div className="flex justify-between items-start">
-                                            <div className="bg-primary/10 p-4 rounded-lg text-primary">
-                                                <span className="material-symbols-outlined text-4xl">{cat.icon}</span>
+                                {categories.map((cat, idx) => {
+                                    const projectCount = groupedProjects[cat.name]?.length || 0;
+                                    return (
+                                        <div key={idx} className="group relative bg-white dark:bg-[#1a2e22] rounded-xl p-8 flex flex-col gap-6 card-hover-effect border border-gray-100 dark:border-gray-800 shadow-sm transition-transform hover:-translate-y-1">
+                                            <div className="flex justify-between items-start">
+                                                <div
+                                                    className="bg-primary/10 p-4 rounded-lg text-primary cursor-pointer hover:bg-primary/20 transition-colors"
+                                                    onClick={() => scrollToCategory(cat.name)}
+                                                >
+                                                    <span className="material-symbols-outlined text-4xl">{cat.icon}</span>
+                                                </div>
+                                                <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold px-3 py-1 rounded-full">
+                                                    {projectCount} {projectCount === 1 ? 'Project' : 'Projects'}
+                                                </span>
                                             </div>
-                                            <span className="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-xs font-bold px-3 py-1 rounded-full">{cat.note}</span>
+                                            <div className="flex flex-col gap-2 flex-grow">
+                                                <h3
+                                                    className="text-[#111814] dark:text-white text-xl font-bold leading-tight group-hover:text-primary transition-colors duration-300 cursor-pointer"
+                                                    onClick={() => scrollToCategory(cat.name)}
+                                                >
+                                                    {cat.name}
+                                                </h3>
+                                                <p className="text-[#618972] dark:text-gray-400 text-sm leading-relaxed">
+                                                    Explore projects in {cat.name}.
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center text-primary font-bold text-sm mt-auto pt-4 border-t border-gray-100 dark:border-gray-800">
+                                                <button
+                                                    onClick={() => scrollToCategory(cat.name)}
+                                                    className="flex items-center bg-transparent border-none p-0 cursor-pointer text-inherit group-hover:text-primary transition-colors duration-300"
+                                                >
+                                                    <span className="mr-2">Explore Category</span>
+                                                    <span className="material-symbols-outlined text-sm arrow-icon transition-transform duration-300 group-hover:translate-x-1">arrow_forward</span>
+                                                </button>
+                                            </div>
                                         </div>
-                                        <div className="flex flex-col gap-2 flex-grow">
-                                            <h3 className="text-[#111814] dark:text-white text-xl font-bold leading-tight group-hover:text-primary transition-colors">{cat.name}</h3>
-                                            <p className="text-[#618972] dark:text-gray-400 text-sm leading-relaxed">
-                                                Explore projects in {cat.name}.
-                                            </p>
-                                        </div>
-                                        <div className="flex items-center text-primary font-bold text-sm mt-auto pt-4 border-t border-gray-100 dark:border-gray-800">
+                                    );
+                                })}
+                            </div>
+
+                            {/* Sticky Quick Navigation Bar */}
+                            <div className="sticky top-[64px] z-40 bg-background-light/95 dark:bg-background-dark/95 backdrop-blur-md py-4 mb-8 -mx-4 px-4 md:mx-0 md:px-0 border-b border-gray-100 dark:border-gray-800 transition-colors shadow-sm">
+                                <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-2 hide-scroll-bar">
+                                    <button
+                                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                                        className="flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:bg-primary/10 hover:text-primary transition-colors"
+                                        aria-label="Scroll to top"
+                                    >
+                                        <span className="material-symbols-outlined text-lg">arrow_upward</span>
+                                    </button>
+                                    <div className="w-px h-6 bg-gray-200 dark:bg-gray-700 mx-1 flex-shrink-0"></div>
+                                    {categories.map((cat, idx) => {
+                                        if (!groupedProjects[cat.name] || groupedProjects[cat.name].length === 0) return null;
+                                        return (
                                             <button
+                                                key={idx}
                                                 onClick={() => scrollToCategory(cat.name)}
-                                                className="flex items-center hover:underline bg-transparent border-none p-0 cursor-pointer text-inherit"
+                                                className="flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full bg-white dark:bg-[#1a2e22] border border-gray-200 dark:border-gray-700 text-sm font-bold text-gray-700 dark:text-gray-300 hover:border-primary hover:text-primary dark:hover:border-primary dark:hover:text-primary transition-all shadow-sm group hover:-translate-y-0.5 whitespace-nowrap"
                                             >
-                                                <span className="mr-2">Explore Category</span>
-                                                <span className="material-symbols-outlined text-sm arrow-icon">arrow_forward</span>
+                                                <span className="material-symbols-outlined text-base group-hover:text-primary">{cat.icon}</span>
+                                                {cat.name.split(' & ')[0]} {/* Shorten name for pills if needed, or keep full */}
                                             </button>
-                                        </div>
-                                    </div>
-                                ))}
+                                        );
+                                    })}
+                                </div>
                             </div>
 
                             {/* Projects Grouped by Category */}
@@ -129,7 +169,7 @@ const RegionProjects: React.FC = () => {
                                 const catProjects = groupedProjects[cat.name] || [];
                                 if (catProjects.length === 0) return null;
                                 return (
-                                    <section key={cat.name} id={cat.name.replace(/\s+/g, '-').toLowerCase()} className="mb-16 scroll-mt-24">
+                                    <section key={cat.name} id={cat.name.replace(/\s+/g, '-').toLowerCase()} className="mb-16 scroll-mt-44">
                                         <h2 className="text-2xl font-bold text-[#111814] dark:text-white mb-6 border-b border-gray-200 dark:border-gray-800 pb-2">{cat.name}</h2>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                             {catProjects.map(project => (

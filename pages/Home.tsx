@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import Header from '../components/Header';
 import ChatWidget from '../components/ChatWidget';
 import TechCube from '../components/TechCube';
@@ -297,13 +297,13 @@ const Home: React.FC = () => {
                                     )}
                                 </div>
                                 {filteredProjects.length > 2 && (
-                                    <a
-                                        href={`/projects/${activeRegion}`}
+                                    <Link
+                                        to={`/projects/${activeRegion}`}
                                         className="inline-flex items-center justify-center px-8 py-3 bg-white dark:bg-card-dark border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white font-bold rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all shadow-sm hover:translate-y-[-2px]"
                                     >
                                         View All {activeRegion} Projects
                                         <span className="material-symbols-outlined ml-2 text-primary">arrow_forward</span>
-                                    </a>
+                                    </Link>
                                 )}
                             </div>
                         )}
