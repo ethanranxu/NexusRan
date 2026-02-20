@@ -76,7 +76,7 @@ const RegionProjects: React.FC = () => {
                 <div className="max-w-[1200px] mx-auto">
                     {/* Breadcrumb / Back Navigation */}
                     <div className="mb-8">
-                        <Link to="/" state={{ region: decodedRegion }} className="flex items-center gap-2 text-[#618972] dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium">
+                        <Link to="/#projects" state={{ region: decodedRegion }} className="flex items-center gap-2 text-[#618972] dark:text-gray-400 hover:text-primary dark:hover:text-primary transition-colors text-sm font-medium">
                             <span className="material-symbols-outlined text-lg">arrow_back</span>
                             <span>Back to Main Portfolio</span>
                         </Link>
