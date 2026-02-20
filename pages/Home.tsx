@@ -74,7 +74,7 @@ const Home: React.FC = () => {
         // Also listen for hashchange events if the user clicks a link on the same page
         window.addEventListener('hashchange', handleHashScroll);
         return () => window.removeEventListener('hashchange', handleHashScroll);
-    }, [location.pathname]); // Also re-run if we just arrived on '/' from another path
+    }, [location.pathname, location.hash]); // Re-run if path OR hash changes
 
     const toggleDark = () => setIsDark(!isDark);
 
